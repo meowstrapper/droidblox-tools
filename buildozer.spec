@@ -99,7 +99,7 @@ fullscreen = 0
 # red, blue, green, black, white, gray, cyan, magenta, yellow, lightgray,
 # darkgray, grey, lightgrey, darkgrey, aqua, fuchsia, lime, maroon, navy,
 # olive, purple, silver, teal.
-#android.presplash_color = #FFFFFF
+android.presplash_color = #000000
 
 # (string) Presplash animation using Lottie format.
 # see https://lottiefiles.com/ for examples and https://airbnb.design/lottie/
@@ -108,12 +108,12 @@ fullscreen = 0
 #android.presplash_lottie = "path/to/lottie/file.json"
 
 # (str) Adaptive icon of the application (used if Android API level is 26+ at runtime)
-#icon.adaptive_foreground.filename = %(source.dir)s/data/icon_fg.png
-#icon.adaptive_background.filename = %(source.dir)s/data/icon_bg.png
+icon.adaptive_foreground.filename = assets/foreground.png
+icon.adaptive_background.filename = assets/background.png
 
 # (list) Permissions
 # (See https://python-for-android.readthedocs.io/en/latest/buildoptions.html for all the supported syntaxes and properties)
-android.permissions = android.permission.INTERNET, (name=android.permission.WRITE_EXTERNAL_STORAGE;maxSdkVersion=18), POST_NOTIFICATIONS
+android.permissions = android.permission.INTERNET, POST_NOTIFICATIONS
 
 # (list) features (adds uses-feature -tags to manifest)
 #android.features = android.hardware.usb.host
@@ -122,7 +122,7 @@ android.permissions = android.permission.INTERNET, (name=android.permission.WRIT
 android.api = 35
 
 # (int) Minimum API your APK / AAB will support.
-#android.minapi = 21
+android.minapi = 23
 
 # (int) Android SDK version to use
 #android.sdk = 20
