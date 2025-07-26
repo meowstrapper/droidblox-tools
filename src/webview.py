@@ -66,7 +66,7 @@ if platform == "android":
         def webviewSetup(self):
             # the webview will follow the inherited class' size and position
             Logger.debug(TAG + "Creating webview")
-            self.webview = WebView()
+            self.webview = WebView(mActivity)
 
             self.wvcCallback = WVCCallback(self.shouldOverrideUrlLoading)
             self.webViewClient = WebViewClient(self.wvcCallback)
