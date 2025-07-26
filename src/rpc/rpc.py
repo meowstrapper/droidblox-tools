@@ -2,13 +2,19 @@ from kivy.logger import Logger
 from websockets.sync.client import connect
 import websockets
 
+import certifi
 import json
+import ssl
 import threading
 import time
 
 from .models import *
 
 TAG = "DBRPC" + ": "
+
+pathToCertifi = certifi.where()
+sslContext = ssl.create_default_context(cafile = pathToCertifi)
+Logger.debug(TAG + f"Using certifi file {pathToCertifi}")
 
 class RPCSession:
     def __init__(self, token):
@@ -35,7 +41,7 @@ class RPCSession:
     def _start(self):
         Logger.debug(TAG + f"Connecting to {self.url}")
         try:
-            with connect(self.url, max_size = None) as ws:
+            with connect(self.url, max_size = None, ssl = sslContext) as ws:
                 self.ws = ws
 
                 Logger.debug(TAG + "Starting message processor")
