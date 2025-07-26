@@ -2,7 +2,7 @@ package com.drake;
 
 import com.drake.WVCCallback;
 
-import android.webview.WebViewClient;
+import android.webkit.WebViewClient;
 import android.webkit.WebResourceRequest;
 
 public class CustomWVC extends WebViewClient {

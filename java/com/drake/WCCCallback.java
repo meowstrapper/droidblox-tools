@@ -2,6 +2,6 @@ package com.drake;
 
 import java.lang.String;
 
-public interface WVCCallback {
+public interface WCCCallback {
     public boolean onJsAlert(String message);
 }
