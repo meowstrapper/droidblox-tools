@@ -1,10 +1,13 @@
 # droidblox-tools
 <div align="center">
-<img src="https://github.com/meowstrapper/droidblox-tools/raw/main/.github/assets/image.webp" height=300>
+<img src=".github/assets/gui.webp" height=300>
+
+<img src=".github/assets/rpc.webp">
 
 ![build status](https://img.shields.io/github/actions/workflow/status/meowstrapper/droidblox-tools/build.yml)
-</div>
+
 Testing components used in DroidBlox
+</div>
 
 
 ## Why do I need to login to Discord to use RPC?
