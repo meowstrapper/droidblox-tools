@@ -106,6 +106,7 @@ class DBTools(MDApp):
             toast("Please run this on android")
             return
         
+        Logger.debug(TAG + "Creating notification object")
         notification = Notification(
             title = "Connected to server",
             message = "Located at Pyongyang, NK"
@@ -113,6 +114,8 @@ class DBTools(MDApp):
         notification.addLine("Place ID: 142823291")
         notification.addLine("Job ID: 123e4567-e89b-12d3-a456-426614174000")
         notification.addLine("UDMUX IP: 128.116.12.34")
+
+        Logger.debug(TAG + "Sending out notification")
         notification.send()
     
     def applyUsernameAndCallback(self):
@@ -135,8 +138,12 @@ class DBTools(MDApp):
             toast("Please run this on android")
             return
         
+        Logger.debug(TAG + "Creating webview")
         self.webviewScreen = webview.DiscordLoginWebView()
         self.webviewScreen.onLoginCompleted = self._onLoginCompleted
+        Logger.debug(TAG + "Starting webview")
+        self.webviewScreen.startWebview()
+        
     
     def _onLoginCompleted(self, token):
         Logger.debug(TAG + "Done logging in, setting token and applying username")

@@ -85,13 +85,13 @@ if platform == "android":
                 Logger.info(TAG + "Device is a motorola, changing user agent to samsung.")
                 settings.setUserAgentString(SAMSUNG_USER_AGENT)
 
-            Logger.debug(TAG + "Setting size and position")
-            params = self.webview.getLayoutParams()
-            params.width = int(self.width)
-            params.height = int(self.height)
-            self.webview.setLayoutParams(params)
-            self.webview.setX(self.x),
-            self.webview.setY(self.y)
+            # Logger.debug(TAG + "Setting size and position")
+            # params = self.webview.getLayoutParams()
+            # params.width = int(self.width)
+            # params.height = int(self.height)
+            # self.webview.setLayoutParams(params)
+            # self.webview.setX(self.x),
+            # self.webview.setY(self.y)
 
             Logger.debug(TAG + "Done, adding content view to activity and setting it to visible")
             mActivity.addContentView(self.webview, layoutParams(Window.width, Window.height))

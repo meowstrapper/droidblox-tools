@@ -10,7 +10,7 @@ settingsTemplate = {"token": None}
 
 if platform == "android":
     from android.storage import app_storage_path # type: ignore
-    dbPath = os.path.join(app_storage_path(), "files")
+    dbPath = app_storage_path()
 else:
     dbPath = os.path.expanduser("~/.dbtools")
     os.makedirs(dbPath, exist_ok = True)
