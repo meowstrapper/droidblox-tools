@@ -1,4 +1,9 @@
 # droidblox-tools
+<div align="center">
+<img src="https://github.com/meowstrapper/droidblox-tools/raw/main/.github/assets/image.webp" height=300>
+
+![build status](https://img.shields.io/github/actions/workflow/status/meowstrapper/droidblox-tools/build.yml)
+</div>
 Testing components used in DroidBlox
 
 
