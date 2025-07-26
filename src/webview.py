@@ -13,6 +13,7 @@ TAG = "DBWebview" + ": "
 
 if platform == "android":
     from android import mActivity # type: ignore
+    from android.runnable import run_on_ui_thread # type: ignore
     from jnius import autoclass, PythonJavaClass, java_method
     
     Logger.debug(TAG + "Importing classes")
@@ -63,6 +64,7 @@ if platform == "android":
         def shouldOverrideUrlLoading(self, url): ...
         def onJsAlert(self, message): ...
 
+        @run_on_ui_thread
         def webviewSetup(self):
             # the webview will follow the inherited class' size and position
             Logger.debug(TAG + "Creating webview")
@@ -96,12 +98,14 @@ if platform == "android":
             Logger.debug(TAG + "Done, adding content view to activity and setting it to visible")
             mActivity.addContentView(self.webview, layoutParams(Window.width, Window.height))
             self.webview.setVisibility(View.VISIBLE)
-
+        
+        @run_on_ui_thread
         def startWebview(self):
             Logger.info(TAG + "Starting webview")
             self.webviewSetup()
             self.webview.loadUrl(self.url)
-            
+        
+        @run_on_ui_thread
         def closeWebview(self):
             Logger.info(TAG + "Closing webview")
             self.webview.stopLoading()
