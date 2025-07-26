@@ -51,7 +51,8 @@ requirements = python3,
     asynckivy,
     android,
     android-notify,
-    requests
+    requests,
+    websockets
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
