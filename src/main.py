@@ -17,6 +17,8 @@ import webview
 
 import time
 
+TAG = "DBTools App" + ": "
+
 Logger.setLevel(LOG_LEVELS["debug"])
 logging.getLogger("requests").setLevel(logging.INFO)
 logging.getLogger("websockets").setLevel(logging.INFO)
@@ -24,6 +26,13 @@ logging.getLogger("websockets").setLevel(logging.INFO)
 if platform == "android":
     from kivymd.toast import toast
     from android_notify import Notification
+    from android_notify.core import asks_permission_if_needed
+
+    Notification.logs = True
+
+    Logger.debug(TAG + "Asking for notification permission")
+    asks_permission_if_needed()
+    
 else:
     from kivymd.uix.snackbar import MDSnackbar, MDSnackbarText
     def toast(text):
@@ -36,8 +45,6 @@ else:
             size_hint_x = 0.5,
         ).open()
     
-TAG = "DBTools App" + ": "
-
 class DBTools(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
