@@ -33,9 +33,9 @@ if platform == "android":
     MOTOROLA = "motorola"
     SAMSUNG_USER_AGENT = "Mozilla/5.0 (Linux; Android 14; SM-S921U; Build/UP1A.231005.007) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Mobile Safari/537.363"
 
-    class WCCCallback(PythonJavaClass):
+    class WVCCallback(PythonJavaClass):
         __javacontext__ = "app"
-        __javainterfaces__ = ["com/drake/WCCCallback"]
+        __javainterfaces__ = ["com/drake/WVCCallback"]
 
         def __init__(self, callback):
             super().__init__()
@@ -45,9 +45,9 @@ if platform == "android":
         def shouldOverrideUrlLoading(self, url):
             self.callback(url)
 
-    class WVCCallback(PythonJavaClass):
+    class WCCCallback(PythonJavaClass):
         __javacontext__ = "app"
-        __javainterfaces__ = ["com/drake/WVCCallback"]
+        __javainterfaces__ = ["com/drake/WCCCallback"]
 
         def __init__(self, callback):
             super().__init__()
@@ -62,7 +62,7 @@ if platform == "android":
             self.url = url
 
         def shouldOverrideUrlLoading(self, url): ...
-        def onJsAlert(self, message): ...
+        def onJsAlert(self, message): ... 
 
         @run_on_ui_thread
         def webviewSetup(self):
