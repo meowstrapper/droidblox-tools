@@ -18,10 +18,12 @@ from kivymd.uix.screen import MDScreen
 from kivymd.uix.screenmanager import MDScreenManager
 from kivymd.uix.transition import MDSharedAxisTransition
 
+import logging
+
 import jnius
+logging.getLogger("jnius").setLevel(logging.INFO)
 
 import discordapi
-import logging
 import rpc
 import settings
 import webview
@@ -33,8 +35,8 @@ TAG = "DBTools App" + ": "
 Logger.setLevel(LOG_LEVELS["debug"])
 logging.getLogger("requests").setLevel(logging.INFO)
 logging.getLogger("websockets").setLevel(logging.INFO)
-logging.getLogger("jnius").setLevel(logging.INFO)
 
+jnius.autoclass("java.lang.String")
 if platform == "android":
     from kivymd.toast import toast
     from android_notify import Notification
@@ -57,33 +59,34 @@ else:
             size_hint_x = 0.5,
         ).open()
 
-class DiscordLoginScreen(MDScreen):
-    def __init__(self, onTopAppBarButtonRelease, *args, **kwargs):
-        super().__init__(*args, name = "LoginScreen", **kwargs)
-        self.TopAppBar = MDTopAppBar(
-            MDTopAppBarLeadingButtonContainer(
-                MDActionTopAppBarButton(
-                    icon = "arrow-left",
-                    on_release = onTopAppBarButtonRelease
-                )
-            ),
-            MDTopAppBarTitle(text = "Login To Discord")
-        )
-        self.add_widget(MDBoxLayout(
-            self.TopAppBar,
-            MDBoxLayout(
-                size_hint = (1, 1),
-                md_bg_color = [1,1,1]
-            ),
-            orientation = "vertical"
-        ))
+# this broken
+# class DiscordLoginScreen(MDScreen):
+#     def __init__(self, onTopAppBarButtonRelease, *args, **kwargs):
+#         super().__init__(*args, name = "LoginScreen", **kwargs)
+#         self.TopAppBar = MDTopAppBar(
+#             MDTopAppBarLeadingButtonContainer(
+#                 MDActionTopAppBarButton(
+#                     icon = "arrow-left",
+#                     on_release = onTopAppBarButtonRelease
+#                 )
+#             ),
+#             MDTopAppBarTitle(text = "Login To Discord")
+#         )
+#         self.add_widget(MDBoxLayout(
+#             self.TopAppBar,
+#             MDBoxLayout(
+#                 size_hint = (1, 1),
+#                 md_bg_color = [1,1,1]
+#             ),
+#             orientation = "vertical"
+#         ))
         
-        # Reserved for WebView params
-        self.webviewWidth = Window.width
-        self.webviewHeight = Window.height - self.TopAppBar.height
-        self.webviewX = 0
-        self.webviewY = self.TopAppBar.height
-            
+#         # Reserved for WebView params
+#         self.webviewWidth = Window.width
+#         self.webviewHeight = Window.height - self.TopAppBar.height
+#         self.webviewX = 0
+#         self.webviewY = self.TopAppBar.height
+#         print(self.webviewWidth, self.webviewHeight, self.webviewX, self.webviewY)
 
 class DBTools(MDApp):
     def __init__(self, **kwargs):
@@ -140,11 +143,11 @@ class DBTools(MDApp):
         )
         self.Screen = self.MainScreen.get_ids()
 
-        self.LoginScreen = DiscordLoginScreen(onTopAppBarButtonRelease = self.goBackToScreenFromLogin)
+        # self.LoginScreen = DiscordLoginScreen(onTopAppBarButtonRelease = self.goBackToScreenFromLogin)
 
         self.ScreenManager = MDScreenManager(
             self.MainScreen,
-            self.LoginScreen,
+            # self.LoginScreen,
             transition = MDSharedAxisTransition()
         )
         return self.ScreenManager
@@ -198,15 +201,16 @@ class DBTools(MDApp):
             toast("Please run this on android")
             return
         
-        self.switchScreen("LoginScreen")
+        # self.switchScreen("LoginScreen")
 
         Logger.debug(TAG + "Creating webview")
-        self.webviewScreen = webview.DiscordLoginWebView(
-            x = self.LoginScreen.webviewX,
-            y = self.LoginScreen.webviewY,
-            width = self.LoginScreen.webviewWidth,
-            height = self.LoginScreen.webviewHeight
-        )
+        # self.webviewScreen = webview.DiscordLoginWebView(
+        #     x = self.LoginScreen.webviewX,
+        #     y = self.LoginScreen.webviewY,
+        #     width = self.LoginScreen.webviewWidth,
+        #     height = self.LoginScreen.webviewHeight
+        # )
+        self.webviewScreen = webview.DiscordLoginWebview()
         self.webviewScreen.onLoginCompleted = self._onLoginCompleted
         Logger.debug(TAG + "Starting webview")
         self.webviewScreen.startWebview()
@@ -232,6 +236,10 @@ class DBTools(MDApp):
     @mainthread
     def _logoutOfDiscordCallback(self, *args):
         if not settings.getSetting("token"): return
+
+        Logger.debug(TAG + "Stopping RPC before logging out")
+        self.stopRPC()
+
         Logger.debug(TAG + "Logging out of discord")
         discordapi.logout(settings.getSetting("token"))
 
@@ -242,6 +250,8 @@ class DBTools(MDApp):
         self.Screen.status.text = "Login to Discord to start RPC"
         self.Screen.LoginToDiscordText.text = "Login to Discord"
         self.Screen.LoginToDiscordButton.on_press = self.loginToDiscordCallback
+
+        toast("Logged out successfully!")
 
     def startRPC(self, *args):
         Clock.schedule_once(self._startRPC, 0)
@@ -284,8 +294,11 @@ class DBTools(MDApp):
         self.Screen.StartRPCText.text = "Stop RPC"
         self.Screen.StartRPCButton.on_press = self.stopRPC
 
-    @mainthread
     def stopRPC(self, *args):
+        Clock.schedule_once(self._stopRPC, 0)
+        
+    @mainthread
+    def _stopRPC(self, *args):
         if not self.currentRPCSession: return
         Logger.info(TAG + "Stopping RPC")
         self.currentRPCSession.removeRPC()
