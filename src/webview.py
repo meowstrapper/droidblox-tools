@@ -57,9 +57,13 @@ if platform == "android":
         def onJsAlert(self, message):
             self.callback(message)
     
-    class WebViewWindow(MDBoxLayout):
-        def __init__(self, url, **kwargs):
+    class WebViewWindow:
+        def __init__(self, url, x, y, width, height, **kwargs):
             self.url = url
+            self.x = x
+            self.y = y
+            self.width = width
+            self.height = height
 
         def shouldOverrideUrlLoading(self, url): ...
         def onJsAlert(self, message): ... 
@@ -87,13 +91,13 @@ if platform == "android":
                 Logger.info(TAG + "Device is a motorola, changing user agent to samsung.")
                 settings.setUserAgentString(SAMSUNG_USER_AGENT)
 
-            # Logger.debug(TAG + "Setting size and position")
-            # params = self.webview.getLayoutParams()
-            # params.width = int(self.width)
-            # params.height = int(self.height)
-            # self.webview.setLayoutParams(params)
-            # self.webview.setX(self.x),
-            # self.webview.setY(self.y)
+            Logger.debug(TAG + "Setting size and position")
+            params = self.webview.getLayoutParams()
+            params.width = int(self.width)
+            params.height = int(self.height)
+            self.webview.setLayoutParams(params)
+            self.webview.setX(self.x),
+            self.webview.setY(self.y)
 
             Logger.debug(TAG + "Done, adding content view to activity and setting it to visible")
             mActivity.addContentView(self.webview, layoutParams(Window.width, Window.height))
@@ -114,7 +118,7 @@ if platform == "android":
     
     class DiscordLoginWebView(WebViewWindow):
         def __init__(self, **kwargs):
-            super().__init__(DISCORD_LOGIN_URL, **kwargs)
+            super().__init__(url = DISCORD_LOGIN_URL, **kwargs)
         
         def onLoginCompleted(self, token: str): ...
 

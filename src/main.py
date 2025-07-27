@@ -1,13 +1,24 @@
-from kivy.clock import mainthread
+from kivy.clock import Clock, mainthread
+from kivy.core.window import Window
 from kivy.logger import Logger, LOG_LEVELS
 from kivy.metrics import dp
 from kivy.utils import platform
 
 from kivymd.app import MDApp
+from kivymd.uix.appbar import (
+    MDActionTopAppBarButton,
+    MDTopAppBar,
+    MDTopAppBarLeadingButtonContainer,
+    MDTopAppBarTitle
+)
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDButton, MDButtonText
 from kivymd.uix.label import MDLabel
 from kivymd.uix.screen import MDScreen
+from kivymd.uix.screenmanager import MDScreenManager
+from kivymd.uix.transition import MDSharedAxisTransition
+
+import jnius
 
 import discordapi
 import logging
@@ -22,6 +33,7 @@ TAG = "DBTools App" + ": "
 Logger.setLevel(LOG_LEVELS["debug"])
 logging.getLogger("requests").setLevel(logging.INFO)
 logging.getLogger("websockets").setLevel(logging.INFO)
+logging.getLogger("jnius").setLevel(logging.INFO)
 
 if platform == "android":
     from kivymd.toast import toast
@@ -44,7 +56,35 @@ else:
             pos_hint = {"center_x": 0.5},
             size_hint_x = 0.5,
         ).open()
-    
+
+class DiscordLoginScreen(MDScreen):
+    def __init__(self, onTopAppBarButtonRelease, *args, **kwargs):
+        super().__init__(*args, name = "LoginScreen", **kwargs)
+        self.TopAppBar = MDTopAppBar(
+            MDTopAppBarLeadingButtonContainer(
+                MDActionTopAppBarButton(
+                    icon = "arrow-left",
+                    on_release = onTopAppBarButtonRelease
+                )
+            ),
+            MDTopAppBarTitle(text = "Login To Discord")
+        )
+        self.add_widget(MDBoxLayout(
+            self.TopAppBar,
+            MDBoxLayout(
+                size_hint = (1, 1),
+                md_bg_color = [1,1,1]
+            ),
+            orientation = "vertical"
+        ))
+        
+        # Reserved for WebView params
+        self.webviewWidth = Window.width
+        self.webviewHeight = Window.height - self.TopAppBar.height
+        self.webviewX = 0
+        self.webviewY = self.TopAppBar.height
+            
+
 class DBTools(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -56,7 +96,7 @@ class DBTools(MDApp):
     def build(self):
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "Darkgreen"
-        self.ScreenRoot = MDScreen(
+        self.MainScreen = MDScreen(
             MDBoxLayout(
                 MDLabel(
                     id = "status",
@@ -91,22 +131,33 @@ class DBTools(MDApp):
                     id = "StartRPCButton",
                     pos_hint = {"center_x": 0.5}
                 ),
-                id = "meow",
                 spacing = dp(5),
                 orientation = "vertical",
                 adaptive_height = True,
                 pos_hint = {"center_x": 0.5, "center_y": 0.5}
-            )
+            ),
+            name = "MainScreen"
         )
-        self.Screen = self.ScreenRoot.get_ids()
-        return self.ScreenRoot
+        self.Screen = self.MainScreen.get_ids()
+
+        self.LoginScreen = DiscordLoginScreen(onTopAppBarButtonRelease = self.goBackToScreenFromLogin)
+
+        self.ScreenManager = MDScreenManager(
+            self.MainScreen,
+            self.LoginScreen,
+            transition = MDSharedAxisTransition()
+        )
+        return self.ScreenManager
     
     def on_start(self):
         if settings.getSetting("token"):
             Logger.debug(TAG + "Logged into discord, applying username to gui")
             self.applyUsernameAndCallback()
-        print(self.Screen.meow.height, self.Screen.meow.line_width, self.Screen.meow.pos)
     
+    def switchScreen(self, screenName: str):
+        Logger.debug(TAG + f"Switching screen to {screenName}")
+        self.ScreenManager.current = screenName
+
     @mainthread
     def notifyTest(self, *args):
         if platform != "android":
@@ -136,17 +187,26 @@ class DBTools(MDApp):
         self.Screen.status.text = f"Logged in as {username}"
         self.Screen.LoginToDiscordText.text = "Logout of Discord"
         self.Screen.LoginToDiscordButton.on_press = self.logoutOfDiscordCallback
+    
+    def loginToDiscordCallback(self, *args):
+        Clock.schedule_once(self._loginToDiscordCallback, 0)
 
     @mainthread
-    def loginToDiscordCallback(self, *args):
-        if settings.getSetting("token"): return
-        if self.webviewScreen: return
+    def _loginToDiscordCallback(self, *args):
+        if settings.getSetting("token") or self.webviewScreen: return
         if platform != "android":
             toast("Please run this on android")
             return
         
+        self.switchScreen("LoginScreen")
+
         Logger.debug(TAG + "Creating webview")
-        self.webviewScreen = webview.DiscordLoginWebView()
+        self.webviewScreen = webview.DiscordLoginWebView(
+            x = self.LoginScreen.webviewX,
+            y = self.LoginScreen.webviewY,
+            width = self.LoginScreen.webviewWidth,
+            height = self.LoginScreen.webviewHeight
+        )
         self.webviewScreen.onLoginCompleted = self._onLoginCompleted
         Logger.debug(TAG + "Starting webview")
         self.webviewScreen.startWebview()
@@ -156,9 +216,21 @@ class DBTools(MDApp):
         Logger.debug(TAG + "Done logging in, setting token and applying username")
         settings.setSetting("token", token)
         self.applyUsernameAndCallback()
+    
+    def goBackToScreenFromLogin(self, *args):
+        Clock.schedule_once(self._goBackToScreenFromLogin, 0)
 
     @mainthread
+    def _goBackToScreenFromLogin(self, *args):
+        Logger.debug(TAG + "Closing webview and going back to main screen")
+        #self.webviewScreen.closeWebview()
+        self.switchScreen("MainScreen")
+    
     def logoutOfDiscordCallback(self, *args):
+        Clock.schedule_once(self._logoutOfDiscordCallback, 0)
+
+    @mainthread
+    def _logoutOfDiscordCallback(self, *args):
         if not settings.getSetting("token"): return
         Logger.debug(TAG + "Logging out of discord")
         discordapi.logout(settings.getSetting("token"))
@@ -171,8 +243,11 @@ class DBTools(MDApp):
         self.Screen.LoginToDiscordText.text = "Login to Discord"
         self.Screen.LoginToDiscordButton.on_press = self.loginToDiscordCallback
 
-    @mainthread
     def startRPC(self, *args):
+        Clock.schedule_once(self._startRPC, 0)
+    
+    @mainthread
+    def _startRPC(self, *args):
         if self.currentRPCSession: return
         token = settings.getSetting("token")
         if not token:
