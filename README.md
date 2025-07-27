@@ -27,7 +27,7 @@ $ cd droidblox-tools
 ```sh
 $ pip3 install -r requirements.txt
 ```
-4. Build the APK (takes around >≈ 50 mins)
+4. Build the APK (takes around >≈ 50 mins at the first build and >≈ 10 mins for next builds, depends on your hardware)
 ```sh
 $ buildozer -v android debug # outputs apk to bin/dbtools-(VERSION)-(ARCH)-debug.apk
 ```
