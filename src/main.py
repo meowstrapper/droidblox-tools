@@ -45,7 +45,7 @@ if platform == "android":
     Notification.logs = True
 
     Logger.debug(TAG + "Asking for notification permission")
-    asks_permission_if_needed()
+    asks_permission_if_needed(no_androidx=True)
     
 else:
     from kivymd.uix.snackbar import MDSnackbar, MDSnackbarText
