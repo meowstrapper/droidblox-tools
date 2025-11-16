@@ -50,9 +50,9 @@ requirements = python3,
     asyncgui,
     asynckivy,
     android,
-    android-notify,
     requests,
-    websockets
+    websockets,
+    https://github.com/Fector101/android_notify/archive/without-androidx.zip
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
@@ -219,7 +219,7 @@ android.add_src = java
 #android.add_resources =
 
 # (list) Gradle dependencies to add
-android.gradle_dependencies = androidx.core:core:1.6.0, androidx.core:core-ktx:1.15.0
+#android.gradle_dependencies = androidx.core:core:1.6.0, androidx.core:core-ktx:1.15.0
 
 # (bool) Enable AndroidX support. Enable when 'android.gradle_dependencies'
 # contains an 'androidx' package, or any package from Kotlin source.
